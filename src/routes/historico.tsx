@@ -1,8 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,29 +16,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL, formatDateBR } from "@/lib/format";
 import { CheckCircle2, AlertTriangle, Eye, ChevronLeft, ChevronRight, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
+
 import type { Movimentacao } from "@/lib/totals";
-
-const searchSchema = z.object({
-  mes: fallback(z.string(), "todos").default("todos"),
-  status: fallback(z.enum(["todos", "bateu", "nao_bateu"]), "todos").default("todos"),
-  dataDe: fallback(z.string(), "").default(""),
-  dataAte: fallback(z.string(), "").default(""),
-  busca: fallback(z.string(), "").default(""),
-  ordem: fallback(z.enum(["desc", "asc"]), "desc").default("desc"),
-  pagina: fallback(z.number().int().min(1), 1).default(1),
-  pageSize: fallback(z.number().int().min(1).max(100), 10).default(10),
-});
-
-export const Route = createFileRoute("/historico")({
-  validateSearch: zodValidator(searchSchema),
-  head: () => ({
-    meta: [
-      { title: "Histórico de Fechamentos · Controle de Caixa" },
-      { name: "description", content: "Consulte fechamentos anteriores com filtros por data, status e busca." },
-    ],
-  }),
-  component: HistoricoPage,
-});
 
 type Fechamento = {
   id: string;
@@ -57,16 +34,22 @@ type Fechamento = {
 };
 
 function HistoricoPage() {
-  const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/historico" });
+  const navigate = useNavigate();
+  const [search, setSearchState] = useState({
+    mes: "todos",
+    status: "todos",
+    dataDe: "",
+    dataAte: "",
+    busca: "",
+    ordem: "desc",
+    pagina: 1,
+    pageSize: 10
+  });
   const { mes, status, dataDe, dataAte, busca, ordem, pagina, pageSize } = search;
   const [detalhe, setDetalhe] = useState<Fechamento | null>(null);
 
   const setSearch = (updates: Partial<typeof search>, resetPage = true) => {
-    navigate({
-      search: (prev: typeof search) => ({ ...prev, ...updates, ...(resetPage ? { pagina: 1 } : {}) }),
-      replace: true,
-    });
+    setSearchState(prev => ({ ...prev, ...updates, ...(resetPage ? { pagina: 1 } : {}) }));
   };
 
   // Lista de meses disponíveis (consulta leve, só 'data')
@@ -92,7 +75,7 @@ function HistoricoPage() {
   // Query paginada no servidor
   const { data: pageResult, isFetching } = useQuery({
     queryKey: ["fechamentos", { mes, status, dataDe, dataAte, busca, ordem, pagina, pageSize }],
-    placeholderData: keepPreviousData,
+    placeholderData: (prev) => prev,
     queryFn: async () => {
       let q = supabase
         .from("fechamentos")
@@ -418,3 +401,5 @@ function DetalhesDialog({ fechamento, onClose }: { fechamento: Fechamento | null
     </Dialog>
   );
 }
+
+export default HistoricoPage;

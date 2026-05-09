@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,16 +7,6 @@ import { useCaixaHoje, useMovimentacoes } from "@/hooks/useCaixa";
 import { formatBRL } from "@/lib/format";
 import { MovimentacaoDialog } from "@/components/MovimentacaoDialog";
 import { MovimentacoesList } from "@/components/MovimentacoesList";
-
-export const Route = createFileRoute("/movimentacoes")({
-  head: () => ({
-    meta: [
-      { title: "Movimentações do Dia · Controle de Caixa" },
-      { name: "description", content: "Registre entradas e saídas em PIX, cartão e dinheiro do caixa do dia." },
-    ],
-  }),
-  component: MovimentacoesPage,
-});
 
 function MovimentacoesPage() {
   const { data: caixa } = useCaixaHoje();
@@ -63,3 +53,5 @@ function MovimentacoesPage() {
     </div>
   );
 }
+
+export default MovimentacoesPage;

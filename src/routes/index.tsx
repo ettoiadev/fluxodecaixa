@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,6 @@ import { MovimentacaoDialog } from "@/components/MovimentacaoDialog";
 import { FecharCaixaDialog } from "@/components/FecharCaixaDialog";
 import { MovimentacoesList } from "@/components/MovimentacoesList";
 import { Banknote, CreditCard, Landmark, TrendingDown, Wallet, Plus, Lock, ArrowRight } from "lucide-react";
-
-export const Route = createFileRoute("/")({
-  component: Dashboard,
-});
 
 function Dashboard() {
   const { data: caixa, isLoading } = useCaixaHoje();
@@ -134,3 +130,5 @@ function Stat({
     </Card>
   );
 }
+
+export default Dashboard;
