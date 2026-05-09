@@ -1,0 +1,1 @@
+ALTER TABLE public.fechamentos DROP COLUMN IF EXISTS total_transferencia;
