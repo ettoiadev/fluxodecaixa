@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -26,12 +26,19 @@ export function FecharCaixaDialog({
     () => computeTotais(movimentacoes, Number(caixa.valor_abertura) || 0),
     [movimentacoes, caixa.valor_abertura],
   );
-  const [deposito, setDeposito] = useState(0);
+  const [dinheiroFisicoFinal, setDinheiroFisicoFinal] = useState(0);
   const [obs, setObs] = useState("");
   const qc = useQueryClient();
 
-  const depositoNum = deposito;
-  const bateu = Math.abs(depositoNum - totals.saldoFinal) < 0.01;
+  useEffect(() => {
+    if (!open) return;
+    setDinheiroFisicoFinal(Number(totals.saldoFinal) || 0);
+  }, [open, totals.saldoFinal]);
+
+  const saldoCalculado = Number(totals.saldoFinal) || 0;
+  const dinheiroNoCaixa = Number(dinheiroFisicoFinal) || 0;
+  const valorEntregueGestor = Math.max(0, saldoCalculado - dinheiroNoCaixa);
+  const bateu = dinheiroNoCaixa >= 0 && dinheiroNoCaixa <= saldoCalculado && Math.abs((dinheiroNoCaixa + valorEntregueGestor) - saldoCalculado) < 0.01;
 
   const mut = useMutation({
     mutationFn: async () => {
@@ -47,7 +54,9 @@ export function FecharCaixaDialog({
         total_geral_entradas: totals.totalEntradas,
         total_geral_saidas: totals.totalSaidas,
         saldo_final: totals.saldoFinal,
-        deposito_final: depositoNum,
+        deposito_final: valorEntregueGestor,
+        dinheiro_fisico_final: dinheiroNoCaixa,
+        valor_entregue_gestor: valorEntregueGestor,
         caixa_bateu: bateu,
         observacao: obs || null,
       });
@@ -57,7 +66,8 @@ export function FecharCaixaDialog({
         .from("caixas")
         .update({
           status: "fechado",
-          deposito_final: depositoNum,
+          deposito_final: valorEntregueGestor,
+          dinheiro_fisico_final: dinheiroNoCaixa,
           observacao_fechamento: obs || null,
           fechado_em: new Date().toISOString(),
         })
@@ -120,8 +130,11 @@ export function FecharCaixaDialog({
 
         <div className="space-y-3 pt-2">
           <div>
-            <Label htmlFor="dep">Depósito Final do Dia (R$)</Label>
-            <CurrencyInput id="dep" value={deposito} onChange={setDeposito} placeholder="0,00" />
+            <Label htmlFor="din">Dinheiro que ficará no caixa (R$)</Label>
+            <CurrencyInput id="din" value={dinheiroFisicoFinal} onChange={setDinheiroFisicoFinal} placeholder="0,00" />
+            <div className="mt-1 text-xs text-muted-foreground">
+              Entregue ao gestor para depósito: <span className="font-semibold">{formatBRL(valorEntregueGestor)}</span>
+            </div>
           </div>
           <div>
             <Label htmlFor="obs">Observações</Label>
@@ -144,17 +157,17 @@ export function FecharCaixaDialog({
                 <div className="font-semibold">{formatBRL(totals.saldoFinal)}</div>
               </div>
               <div>
-                <div className="text-muted-foreground">Físico</div>
-                <div className="font-semibold">{formatBRL(depositoNum)}</div>
+                <div className="text-muted-foreground">No caixa</div>
+                <div className="font-semibold">{formatBRL(dinheiroNoCaixa)}</div>
               </div>
               <div>
-                <div className="text-muted-foreground">Diferença</div>
-                <div className="font-semibold">{formatBRL(depositoNum - totals.saldoFinal)}</div>
+                <div className="text-muted-foreground">Entregue</div>
+                <div className="font-semibold">{formatBRL(valorEntregueGestor)}</div>
               </div>
             </div>
             {!bateu && (
               <div className="mt-2 text-xs">
-                ⚠️ O fechamento só pode ser confirmado quando o saldo físico for igual ao calculado.
+                ⚠️ Ajuste o valor que ficará no caixa. Ele não pode ser maior que o saldo calculado.
               </div>
             )}
           </div>

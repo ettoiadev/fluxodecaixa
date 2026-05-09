@@ -19,6 +19,7 @@ export type Database = {
           criado_em: string | null
           data: string
           deposito_final: number | null
+          dinheiro_fisico_final: number | null
           fechado_em: string | null
           id: string
           observacao_fechamento: string | null
@@ -29,6 +30,7 @@ export type Database = {
           criado_em?: string | null
           data: string
           deposito_final?: number | null
+          dinheiro_fisico_final?: number | null
           fechado_em?: string | null
           id?: string
           observacao_fechamento?: string | null
@@ -39,6 +41,7 @@ export type Database = {
           criado_em?: string | null
           data?: string
           deposito_final?: number | null
+          dinheiro_fisico_final?: number | null
           fechado_em?: string | null
           id?: string
           observacao_fechamento?: string | null
@@ -53,6 +56,7 @@ export type Database = {
           caixa_id: string | null
           data: string
           deposito_final: number | null
+          dinheiro_fisico_final: number | null
           fechado_em: string | null
           id: string
           observacao: string | null
@@ -63,6 +67,7 @@ export type Database = {
           total_geral_saidas: number | null
           total_pix: number | null
           total_saidas_dinheiro: number | null
+          valor_entregue_gestor: number | null
           valor_abertura: number | null
         }
         Insert: {
@@ -70,6 +75,7 @@ export type Database = {
           caixa_id?: string | null
           data: string
           deposito_final?: number | null
+          dinheiro_fisico_final?: number | null
           fechado_em?: string | null
           id?: string
           observacao?: string | null
@@ -80,6 +86,7 @@ export type Database = {
           total_geral_saidas?: number | null
           total_pix?: number | null
           total_saidas_dinheiro?: number | null
+          valor_entregue_gestor?: number | null
           valor_abertura?: number | null
         }
         Update: {
@@ -87,6 +94,7 @@ export type Database = {
           caixa_id?: string | null
           data?: string
           deposito_final?: number | null
+          dinheiro_fisico_final?: number | null
           fechado_em?: string | null
           id?: string
           observacao?: string | null
@@ -97,6 +105,7 @@ export type Database = {
           total_geral_saidas?: number | null
           total_pix?: number | null
           total_saidas_dinheiro?: number | null
+          valor_entregue_gestor?: number | null
           valor_abertura?: number | null
         }
         Relationships: [
