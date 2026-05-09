@@ -36,10 +36,11 @@ export function MovimentacaoDialog({
     mutationFn: async () => {
       const v = valor;
       if (!v || v <= 0) throw new Error("Informe um valor válido.");
+      if (tipo === "entrada" && !numeroPedido.trim()) throw new Error("Informe o Nº do Pedido.");
       const { error } = await supabase.from("movimentacoes").insert({
         caixa_id: caixaId,
         tipo, forma_pagamento: forma,
-        numero_pedido: numeroPedido || null,
+        numero_pedido: tipo === "entrada" ? (numeroPedido || null) : null,
         maquineta: forma === "cartao" ? maquineta || null : null,
         banco: forma === "pix" ? banco || null : null,
         valor: v,
@@ -59,7 +60,10 @@ export function MovimentacaoDialog({
   const tipoBtn = (t: Tipo, label: string, color: string) => (
     <button
       type="button"
-      onClick={() => setTipo(t)}
+      onClick={() => {
+        setTipo(t);
+        if (t === "saida") setNumeroPedido("");
+      }}
       className={cn(
         "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
         tipo === t ? `${color} text-white border-transparent` : "bg-background hover:bg-muted",
@@ -109,10 +113,14 @@ export function MovimentacaoDialog({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="ped">Nº do Pedido</Label>
-              <Input id="ped" value={numeroPedido} onChange={(e) => setNumeroPedido(e.target.value)} placeholder="Ex: 485" />
-            </div>
+            {tipo === "entrada" ? (
+              <div>
+                <Label htmlFor="ped">Nº do Pedido</Label>
+                <Input id="ped" value={numeroPedido} onChange={(e) => setNumeroPedido(e.target.value)} placeholder="Ex: 485" />
+              </div>
+            ) : (
+              <div className="hidden sm:block" />
+            )}
             <div>
               <Label htmlFor="val">Valor (R$)</Label>
               <CurrencyInput 
