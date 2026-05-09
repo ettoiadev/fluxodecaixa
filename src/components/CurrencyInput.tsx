@@ -26,13 +26,13 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   const parseCurrency = (str: string): number => {
     if (!str) return 0;
     
-    // Remove tudo exceto números, vírgula e ponto
-    const clean = str
-      .replace(/[^\d,.-]/g, '')
-      .replace(/\./g, '') // Remove pontos (separador de milhar)
-      .replace(',', '.'); // Converte vírgula para ponto (decimal)
+    // Remove tudo exceto números e vírgula
+    const clean = str.replace(/[^\d,]/g, '');
     
-    const num = parseFloat(clean);
+    // Converte vírgula para ponto (decimal)
+    const normalized = clean.replace(',', '.');
+    
+    const num = parseFloat(normalized);
     return Number.isFinite(num) ? num : 0;
   };
 
@@ -61,8 +61,13 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     // Converter para número
     const numValue = parseCurrency(inputValue);
     
-    // Atualizar display com formatação
-    setDisplayValue(inputValue);
+    // Atualizar display com formatação apenas se não estiver apagando
+    const nativeEvent = e.nativeEvent as any;
+    if (nativeEvent?.inputType !== 'deleteContentBackward' && 
+        nativeEvent?.inputType !== 'deleteContentForward') {
+      setDisplayValue(inputValue);
+    }
+    
     onChange?.(numValue);
   };
 
