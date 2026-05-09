@@ -29,6 +29,9 @@ function MovimentacoesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <Button asChild variant="outline" size="sm" className="mb-3">
+            <Link to="/">Voltar para o Dashboard</Link>
+          </Button>
           <h1 className="text-2xl font-bold">Movimentações do Dia</h1>
           <p className="text-sm text-muted-foreground">
             Abertura: {formatBRL(caixa.valor_abertura)} · {fechado ? "Caixa fechado" : "Caixa aberto"}

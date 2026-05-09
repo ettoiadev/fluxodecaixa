@@ -127,11 +127,21 @@ function HistoricoPage() {
       </span>
     );
 
+  const VoltarDashboard = () => (
+    <Button variant="outline" size="sm" onClick={() => navigate("/")}>Voltar para o Dashboard</Button>
+  );
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Histórico de Fechamentos</h1>
-        <p className="text-sm text-muted-foreground">Consulte fechamentos anteriores</p>
+        <VoltarDashboard />
+      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Histórico de Fechamentos</h1>
+          <p className="text-sm text-muted-foreground">Consulte fechamentos anteriores</p>
+        </div>
+
       </div>
 
       <Card>
