@@ -5,21 +5,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import CurrencyInput from "@/components/CurrencyInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { todayISO, parseCurrencyInput } from "@/lib/format";
+import { todayISO } from "@/lib/format";
 
 export function AbrirCaixaDialog({
   open, onOpenChange,
 }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const [data, setData] = useState(todayISO());
-  const [valor, setValor] = useState("0,00");
+  const [valor, setValor] = useState(0);
   const qc = useQueryClient();
 
   const mut = useMutation({
     mutationFn: async () => {
-      const valor_abertura = parseCurrencyInput(valor);
+      const valor_abertura = valor;
       const { error } = await supabase.from("caixas").insert({
         data,
         valor_abertura,
@@ -31,7 +32,7 @@ export function AbrirCaixaDialog({
       toast.success("Caixa aberto com sucesso!");
       qc.invalidateQueries({ queryKey: ["caixa"] });
       onOpenChange(false);
-      setValor("0,00");
+      setValor(0);
     },
     onError: (e: any) => {
       if (e?.code === "23505") toast.error("Já existe um caixa para esta data.");
@@ -53,7 +54,12 @@ export function AbrirCaixaDialog({
           </div>
           <div>
             <Label htmlFor="valor">Valor de Abertura (R$)</Label>
-            <Input id="valor" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
+            <CurrencyInput 
+              id="valor" 
+              value={valor} 
+              onChange={setValor} 
+              placeholder="0,00" 
+            />
           </div>
         </div>
         <DialogFooter>

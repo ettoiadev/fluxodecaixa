@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import CurrencyInput from "@/components/CurrencyInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { parseCurrencyInput } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Tipo = "entrada" | "saida";
@@ -23,18 +23,18 @@ export function MovimentacaoDialog({
   const [numeroPedido, setNumeroPedido] = useState("");
   const [maquineta, setMaquineta] = useState("");
   const [banco, setBanco] = useState("");
-  const [valor, setValor] = useState("");
+  const [valor, setValor] = useState(0);
   const [descricao, setDescricao] = useState("");
   const qc = useQueryClient();
 
   const reset = () => {
     setTipo("entrada"); setForma("pix"); setNumeroPedido("");
-    setMaquineta(""); setBanco(""); setValor(""); setDescricao("");
+    setMaquineta(""); setBanco(""); setValor(0); setDescricao("");
   };
 
   const mut = useMutation({
     mutationFn: async () => {
-      const v = parseCurrencyInput(valor);
+      const v = valor;
       if (!v || v <= 0) throw new Error("Informe um valor válido.");
       const { error } = await supabase.from("movimentacoes").insert({
         caixa_id: caixaId,
@@ -115,7 +115,12 @@ export function MovimentacaoDialog({
             </div>
             <div>
               <Label htmlFor="val">Valor (R$)</Label>
-              <Input id="val" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
+              <CurrencyInput 
+                id="val" 
+                value={valor} 
+                onChange={setValor} 
+                placeholder="0,00" 
+              />
             </div>
           </div>
 
