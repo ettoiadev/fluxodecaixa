@@ -61,13 +61,8 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     // Converter para número
     const numValue = parseCurrency(inputValue);
     
-    // Atualizar display com formatação apenas se não estiver apagando
-    const nativeEvent = e.nativeEvent as any;
-    if (nativeEvent?.inputType !== 'deleteContentBackward' && 
-        nativeEvent?.inputType !== 'deleteContentForward') {
-      setDisplayValue(inputValue);
-    }
-    
+    // Sempre atualizar o display com o valor digitado
+    setDisplayValue(inputValue);
     onChange?.(numValue);
   };
 
