@@ -3,13 +3,13 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import CurrencyInput from "@/components/CurrencyInput";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { formatBRL, parseCurrencyInput } from "@/lib/format";
+import { formatBRL } from "@/lib/format";
 import { computeTotais, type Movimentacao } from "@/lib/totals";
 import type { Caixa } from "@/hooks/useCaixa";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
@@ -26,11 +26,11 @@ export function FecharCaixaDialog({
     () => computeTotais(movimentacoes, Number(caixa.valor_abertura) || 0),
     [movimentacoes, caixa.valor_abertura],
   );
-  const [deposito, setDeposito] = useState("0,00");
+  const [deposito, setDeposito] = useState(0);
   const [obs, setObs] = useState("");
   const qc = useQueryClient();
 
-  const depositoNum = parseCurrencyInput(deposito);
+  const depositoNum = deposito;
   const bateu = Math.abs(depositoNum - totals.saldoFinal) < 0.01;
 
   const mut = useMutation({
@@ -121,7 +121,7 @@ export function FecharCaixaDialog({
         <div className="space-y-3 pt-2">
           <div>
             <Label htmlFor="dep">Depósito Final do Dia (R$)</Label>
-            <Input id="dep" inputMode="decimal" value={deposito} onChange={(e) => setDeposito(e.target.value)} placeholder="0,00" />
+            <CurrencyInput id="dep" value={deposito} onChange={setDeposito} placeholder="0,00" />
           </div>
           <div>
             <Label htmlFor="obs">Observações</Label>
