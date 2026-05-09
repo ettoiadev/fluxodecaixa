@@ -22,14 +22,14 @@ export function MovimentacaoDialog({
   const [forma, setForma] = useState<Forma>("pix");
   const [numeroPedido, setNumeroPedido] = useState("");
   const [maquineta, setMaquineta] = useState("");
-  const [banco, setBanco] = useState("");
+  const [banco, setBanco] = useState("Mercado Pago");
   const [valor, setValor] = useState(0);
   const [descricao, setDescricao] = useState("");
   const qc = useQueryClient();
 
   const reset = () => {
     setTipo("entrada"); setForma("pix"); setNumeroPedido("");
-    setMaquineta(""); setBanco(""); setValor(0); setDescricao("");
+    setMaquineta(""); setBanco("Mercado Pago"); setValor(0); setDescricao("");
   };
 
   const mut = useMutation({
