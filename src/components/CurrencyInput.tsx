@@ -13,57 +13,61 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 ) => {
   const [displayValue, setDisplayValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const isFocusedRef = useRef(false);
+  const digitsRef = useRef('');
 
-  // Formatar valor para exibição
-  const formatDisplayValue = (num: number) => {
+  const formatCurrency = (num: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
     }).format(num);
   };
 
-  // Converter valor string formatado para número
-  const parseCurrency = (str: string): number => {
-    if (!str) return 0;
-    
-    // Remove tudo exceto números e vírgula
-    const clean = str.replace(/[^\d,]/g, '');
-    
-    // Converte vírgula para ponto (decimal)
-    const normalized = clean.replace(',', '.');
-    
-    const num = parseFloat(normalized);
-    return Number.isFinite(num) ? num : 0;
+  const digitsToNumber = (digits: string) => {
+    const cents = digits ? parseInt(digits, 10) : 0;
+    return Number.isFinite(cents) ? cents / 100 : 0;
   };
 
-  // Atualizar display quando o valor mudar externamente
+  const numberToDigits = (num: number) => {
+    const cents = Math.round((Number.isFinite(num) ? num : 0) * 100);
+    return String(Math.max(0, cents));
+  };
+
+  const syncFromNumber = (num: number) => {
+    const digits = numberToDigits(num);
+    digitsRef.current = digits;
+    setDisplayValue(formatCurrency(digitsToNumber(digits)));
+  };
+
   useEffect(() => {
-    setDisplayValue(formatDisplayValue(value));
+    if (isFocusedRef.current) return;
+    syncFromNumber(value);
   }, [value]);
 
-  // Manipular input do usuário
+  const setCaretToEnd = () => {
+    const el = inputRef.current;
+    if (!el) return;
+    const len = el.value.length;
+    try {
+      el.setSelectionRange(len, len);
+    } catch {
+      // ignore
+    }
+  };
+
+  const applyDigits = (nextDigits: string) => {
+    const normalized = nextDigits.replace(/^0+(?=\d)/, '');
+    digitsRef.current = normalized;
+    const numeric = digitsToNumber(normalized);
+    setDisplayValue(formatCurrency(numeric));
+    onChange?.(numeric);
+    requestAnimationFrame(setCaretToEnd);
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    
-    // Permitir apenas números, vírgula e ponto
-    const regex = /^[0-9]*[.,]?[0-9]*$/;
-    if (inputValue && !regex.test(inputValue)) {
-      return;
-    }
-
-    // Se estiver vazio, define como 0
-    if (!inputValue) {
-      setDisplayValue('');
-      onChange?.(0);
-      return;
-    }
-
-    // Converter para número
-    const numValue = parseCurrency(inputValue);
-    
-    // Sempre atualizar o display com o valor digitado
-    setDisplayValue(inputValue);
-    onChange?.(numValue);
+    const raw = e.target.value;
+    const onlyDigits = raw.replace(/\D/g, '');
+    applyDigits(onlyDigits);
   };
 
   // Manipular teclas especiais
@@ -78,7 +82,6 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     // Permitir: setas, home, end
     const navigationKeys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
     if (navigationKeys.includes(e.key)) {
-      e.preventDefault();
       return;
     }
 
@@ -90,9 +93,13 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
   // Manipular foco para selecionar todo
   const handleFocus = () => {
-    setTimeout(() => {
-      inputRef.current?.select();
-    }, 0);
+    isFocusedRef.current = true;
+    requestAnimationFrame(setCaretToEnd);
+  };
+
+  const handleBlur = () => {
+    isFocusedRef.current = false;
+    syncFromNumber(digitsToNumber(digitsRef.current));
   };
 
   return (
@@ -104,6 +111,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       onChange={handleInputChange}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
+      onBlur={handleBlur}
       placeholder={placeholder}
       className={cn(
         "font-mono tabular-nums",
