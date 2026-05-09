@@ -10,7 +10,10 @@ import { AbrirCaixaDialog } from "@/components/AbrirCaixaDialog";
 import { MovimentacaoDialog } from "@/components/MovimentacaoDialog";
 import { FecharCaixaDialog } from "@/components/FecharCaixaDialog";
 import { MovimentacoesList } from "@/components/MovimentacoesList";
-import { Banknote, CreditCard, Landmark, TrendingDown, Wallet, Plus, Lock, ArrowRight } from "lucide-react";
+import { Banknote, CreditCard, Landmark, TrendingDown, Wallet, Plus, Lock, ArrowRight, RotateCcw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 function Dashboard() {
   const { data: caixa, isLoading } = useCaixaHoje();
@@ -18,6 +21,31 @@ function Dashboard() {
   const [openAbrir, setOpenAbrir] = useState(false);
   const [openMov, setOpenMov] = useState(false);
   const [openFechar, setOpenFechar] = useState(false);
+  const qc = useQueryClient();
+
+  const reabrirMut = useMutation({
+    mutationFn: async () => {
+      if (!caixa) return;
+      const { error } = await supabase
+        .from("caixas")
+        .update({
+          status: "aberto",
+          fechado_em: null,
+          deposito_final: 0,
+          dinheiro_fisico_final: 0,
+          observacao_fechamento: null,
+        })
+        .eq("id", caixa.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Caixa reaberto com sucesso!");
+      qc.invalidateQueries({ queryKey: ["caixa"] });
+      qc.invalidateQueries({ queryKey: ["movimentacoes"] });
+      qc.invalidateQueries({ queryKey: ["fechamentos"] });
+    },
+    onError: (e: any) => toast.error("Erro ao reabrir: " + (e?.message || "desconhecido")),
+  });
 
   const totals = useMemo(
     () => computeTotais(movs, Number(caixa?.valor_abertura) || 0),
@@ -82,6 +110,21 @@ function Dashboard() {
               <Card className="w-full">
                 <CardContent className="py-6 text-center text-muted-foreground">
                   Este caixa já foi fechado. Veja o registro no histórico.
+                  <div className="mt-4">
+                    <Button
+                      variant="outline"
+                      disabled={reabrirMut.isPending}
+                      onClick={() => {
+                        const ok = window.confirm(
+                          "Tem certeza que deseja reabrir o caixa de hoje? Isso permitirá registrar novas movimentações."
+                        );
+                        if (!ok) return;
+                        reabrirMut.mutate();
+                      }}
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" /> {reabrirMut.isPending ? "Reabrindo..." : "Reabrir Caixa"}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}
