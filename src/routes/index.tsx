@@ -60,7 +60,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
@@ -93,7 +93,7 @@ function Dashboard() {
             <Stat icon={Wallet} label="Saldo do Caixa" value={formatBRL(totals.saldoFinal)} accent="text-primary" highlight />
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             {caixa.status === "aberto" ? (
               <>
                 <Button onClick={() => setOpenMov(true)}>
@@ -128,9 +128,12 @@ function Dashboard() {
                 </CardContent>
               </Card>
             )}
-            <Button variant="outline" asChild>
-              <Link to="/historico">Histórico de Fechamentos</Link>
-            </Button>
+
+            <div className="sm:ml-auto">
+              <Button variant="outline" asChild>
+                <Link to="/historico">Histórico de Fechamentos</Link>
+              </Button>
+            </div>
           </div>
 
           <MovimentacoesList

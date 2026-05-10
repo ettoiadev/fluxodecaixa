@@ -27,21 +27,24 @@ function MovimentacoesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <Button asChild variant="outline" size="sm" className="mb-3">
-            <Link to="/">Voltar para o Dashboard</Link>
-          </Button>
-          <h1 className="text-2xl font-bold">Movimentações do Dia</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Movimentações do Dia</h1>
           <p className="text-sm text-muted-foreground">
             Abertura: {formatBRL(caixa.valor_abertura)} · {fechado ? "Caixa fechado" : "Caixa aberto"}
           </p>
         </div>
-        {!fechado && (
-          <Button onClick={() => setOpenMov(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Nova Movimentação
+
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/">Voltar para o Dashboard</Link>
           </Button>
-        )}
+          {!fechado && (
+            <Button onClick={() => setOpenMov(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Nova Movimentação
+            </Button>
+          )}
+        </div>
       </div>
 
       <MovimentacoesList

@@ -69,18 +69,19 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background pb-20 md:pb-0">
         <header className="sticky top-0 z-30 border-b bg-primary text-primary-foreground shadow-sm">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-            <Link to="/" className="flex items-center gap-2 font-semibold">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+            <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
               <Wallet className="h-5 w-5" />
-              <span>Controle de Caixa</span>
+              <span className="hidden sm:inline">Controle de Caixa</span>
+              <span className="sm:hidden">Caixa</span>
             </Link>
-            <nav className="hidden gap-1 md:flex">
+            <nav className="hidden items-center gap-1 md:flex">
               {navItems.map((it) => (
                 <Link
                   key={it.to}
                   to={it.to}
                   activeOptions={{ exact: it.to === "/" }}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-white/10 data-[status=active]:bg-white/15"
+                  className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-primary-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/30 data-[status=active]:bg-primary-foreground/15"
                 >
                   {it.label}
                 </Link>
@@ -101,7 +102,7 @@ function RootComponent() {
                 key={it.to}
                 to={it.to}
                 activeOptions={{ exact: it.to === "/" }}
-                className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground transition-colors data-[status=active]:text-primary"
+                className="flex flex-col items-center gap-1 py-2.5 text-xs text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[status=active]:text-primary"
               >
                 <Icon className="h-5 w-5" />
                 <span>{it.label}</span>
